@@ -1,0 +1,11 @@
+FROM node:16.14-alpine3.14
+
+RUN apk add --no-cache git openssh libc6-compat
+RUN ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+
+RUN yarn global add truffle@5.1.10
+
+WORKDIR /app/src
+
+# hack to make container always alive
+CMD tail -F anything

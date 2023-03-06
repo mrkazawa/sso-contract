@@ -1,0 +1,22 @@
+version: "2.4"
+
+services:
+  ganache:
+    build:
+      context: .
+      dockerfile: ./dockerfile-ganache
+    ports:
+      - 8545:8545
+    mem_limit: 1g
+    cpus: 1
+
+  dapp:
+    build:
+      context: .
+      dockerfile: ./dockerfile-dapp
+    volumes:
+      - ./dapp:/app
+    depends_on:
+      - ganache
+    mem_limit: 1g
+    cpus: 1
