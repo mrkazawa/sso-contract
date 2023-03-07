@@ -12,12 +12,10 @@ module.exports = async function (deployer, network, accounts) {
   if (network == "development") {
     await deployer.deploy(SafeMath);
 
-    await deployer.deploy(Factory, {
-      from: admin
-    });
+    await deployer.deploy(Factory);
     const factory = await Factory.deployed();
 
-    await deployer.deploy(Identity, threshold, keys, {
+    await deployer.deploy(Identity, factory.address, threshold, keys, {
       from: admin
     });
     const identity = await Identity.deployed();

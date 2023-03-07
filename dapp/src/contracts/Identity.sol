@@ -1,65 +1,93 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.5.1;
+pragma experimental ABIEncoderV2;
 
-//import "./IRegistry.sol";
+import "./Factory.sol";
 
 contract Identity {
-    address private _owner;
-
+    Factory private _factory;
     uint256 public _threshold;
     mapping(address => bool) private _keys;
 
     //----------------- Events -----------------//
 
-    event KeyAdded(address account);
-
-    //----------------- Modifiers -----------------//
-
-    modifier onlyOwner() {
-        require(isOwner(msg.sender), "only for owner");
-        _;
-    }
+    event KeyAdded(address key);
+    event KeyDeleted(address key);
 
     //----------------- Methods -----------------//
 
-    constructor(uint256 threshold, address[] memory accounts) public {
+    constructor(
+        Factory factory,
+        uint256 threshold,
+        address[] memory keys
+    ) public {
+        require(keys.length > 0, "invalid number of keys");
         require(
-            threshold > 0 && threshold <= accounts.length,
+            threshold > 0 && threshold <= keys.length,
             "invalid threshold value"
         );
 
-        for (uint256 i = 0; i < accounts.length; i++) {
-            _keys[accounts[i]] = true;
+        for (uint256 i = 0; i < keys.length; i++) {
+            _keys[keys[i]] = true;
         }
 
         _threshold = threshold;
-        _owner = msg.sender;
+        _factory = factory;
     }
 
-    function isOwner(address account) public view returns (bool) {
-        return (_owner == account);
+    function registerToFactory(bytes32 hashedMessage, bytes[] memory signatures)
+        external
+    {
+        require(verify(hashedMessage, signatures), "invalid multi signatures");
+
+        _factory.addIdentityContract();
     }
 
-    function addKey(address account) external onlyOwner {
-        _keys[account] = true;
-        emit KeyAdded(account);
+    function deregisterFromFactory(
+        bytes32 hashedMessage,
+        bytes[] memory signatures
+    ) external {
+        require(verify(hashedMessage, signatures), "invalid multi signatures");
+
+        _factory.removeIdentityContract();
     }
 
-    function verifySignature(
-        uint8[] memory sigV,
-        bytes32[] memory sigR,
-        bytes32[] memory sigS,
-        bytes32 data
-    ) public view returns (bool) {
-        require(
-            sigV.length == sigR.length &&
-                sigV.length == sigS.length &&
-                sigV.length == _threshold,
-            "invalid signature length"
-        );
+    function addKey(
+        address key,
+        bytes32 hashedMessage,
+        bytes[] memory signatures
+    ) external {
+        require(verify(hashedMessage, signatures), "invalid multi signatures");
+
+        _keys[key] = true;
+
+        emit KeyAdded(key);
+    }
+
+    function deleteKey(
+        address key,
+        bytes32 hashedMessage,
+        bytes[] memory signatures
+    ) external {
+        require(verify(hashedMessage, signatures), "invalid multi signatures");
+
+        _keys[key] = false;
+
+        emit KeyDeleted(key);
+    }
+
+    function verify(bytes32 hashedMessage, bytes[] memory signatures)
+        public
+        view
+        returns (bool)
+    {
+        require(signatures.length == _threshold, "not enough signature");
 
         for (uint256 i = 0; i < _threshold; i++) {
-            address recovered = ecrecover(data, sigV[i], sigR[i], sigS[i]);
+            address recovered = _factory.recoverAddressFromBytes(
+                hashedMessage,
+                signatures[i]
+            );
             if (!isKey(recovered)) {
                 return false;
             }
@@ -67,7 +95,7 @@ contract Identity {
         return true;
     }
 
-    function isKey(address account) public view returns (bool) {
-        return _keys[account];
+    function isKey(address key) public view returns (bool) {
+        return _keys[key];
     }
 }
