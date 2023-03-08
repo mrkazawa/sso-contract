@@ -5,6 +5,7 @@
   "main": "",
   "scripts": {
     "bench": "node --max-old-space-size=4096 /usr/local/bin/truffle deploy --reset --compile-all && node bench/run.js",
+    "bench-gas": "node --max-old-space-size=4096 /usr/local/bin/truffle test bench/gas/*",
     "test": "node --max-old-space-size=4096 /usr/local/bin/truffle test"
   },
   "repository": {

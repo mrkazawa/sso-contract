@@ -8,7 +8,7 @@ const KeyConfig = require("../config/key");
 module.exports = async function (deployer, network, accounts) {
   const admin = accounts[0];
   const threshold = KeyConfig.getThreshold();
-  const keys = await KeyConfig.getKeys();
+  const keys = await KeyConfig.getKeys(threshold);
 
   if (network == "development") {
     await deployer.deploy(SafeMath);
