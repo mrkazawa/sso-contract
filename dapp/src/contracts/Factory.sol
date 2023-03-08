@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.5.1;
 
-//import "./IRegistry.sol";
-
 contract Factory {
     mapping(address => bool) private _identities;
 
@@ -27,13 +25,13 @@ contract Factory {
         return (size > 0);
     }
 
+    // FIXME: Anyone freely add a contract, we do not know
+    // if the submitted contract is malicious or not.
+    //
+    // TODO: Change the logic so that after calling this method,
+    // another third party is required to check the submitted
+    // contract and approve it if not malicious.
     function addIdentityContract() external {
-        // FIXME: Anyone freely add a contract, we do not know
-        // if the submitted contract is malicious or not.
-        //
-        // TODO: Change the logic so that after calling this method,
-        // another third party is required to check the submitted
-        // contract and approve it if not malicious.
         require(isContract(), "only for contract");
         require(!isIdentityContract(msg.sender), "already registered");
 
@@ -114,9 +112,5 @@ contract Factory {
         require(v == 27 || v == 28, "signature version not match");
 
         return (v, r, s);
-    }
-
-    function getHash(address key) public view returns (bytes32) {
-        return keccak256(abi.encodePacked(key));
     }
 }

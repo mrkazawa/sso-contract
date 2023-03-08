@@ -4,7 +4,7 @@
   "description": "Single Sing-On (SSO) With Smart Contract",
   "main": "",
   "scripts": {
-    "server": "node start.js && truffle deploy --reset --compile-all && node rest-server/index.js",
+    "bench": "node --max-old-space-size=4096 /usr/local/bin/truffle deploy --reset --compile-all && node bench/run.js",
     "test": "node --max-old-space-size=4096 /usr/local/bin/truffle test"
   },
   "repository": {

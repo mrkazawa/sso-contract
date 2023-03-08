@@ -76,6 +76,13 @@ contract Identity {
         emit KeyDeleted(key);
     }
 
+    // FIXME: Still vulnerable to replay attack.
+    // Suppose attacker can intercept the signature and hash
+    // from previous verification sessions, then this attacker
+    // can resubmit those values to this method.
+    //
+    // TODO: Add mechanism such that we check that the OTP
+    // (hashedMessage) is really fresh.
     function verify(bytes32 hashedMessage, bytes[] memory signatures)
         public
         view

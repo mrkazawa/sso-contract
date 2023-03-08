@@ -148,3 +148,10 @@ dist
 .pnp.*
 
 # ---------------------- My Custom ---------------------- #
+
+## Truffle
+build/
+DerivedData/
+
+## Benchmark
+*.csv
